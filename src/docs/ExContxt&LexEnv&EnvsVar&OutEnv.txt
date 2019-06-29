@@ -1,0 +1,63 @@
+1
+
+It's easier to understand the Lexical Environment here when you break it up into two more underlying concepts, the Variable Environment and the Outer Environment.
+
+Each Execution Context has an Outer Environment and a Variable Environment. The Outer Environment and the Variable Environment make up the Lexical Environment. That is, the Variable Environment is a certain type of Lexical Environment. A Lexical Environment can be thought of as an internal JavaScript engine construct that holds identifier-variable mappings. The identifier is the name of the variable or function and variable is a reference to the actual data type stored by the identifier (e.g. Object, Number, String, Boolean, null, undefined). A Lexical Environment also has a link to any Outer Environment (i.e. its scope chain), so it is used to resolve identifiers outside the current Execution Context. Ultimately, a corresponding Lexical Environment is created for every Execution Context.
+
+In simplest , Variable Environment refers to where the variables live that you created. In the below example, each myVar is distinct and they do not touch each other. First, a global Execution Context is created. In the Creation Phase of the Execution Context, both the Outer Environment and Variable Environment of the Lexical Environment is created. In terms of the Variable Environment, myVar is placed in memory with undefined value and b and a functions are put into memory with a reference to their definitions. These properties are attached to the global object referenced by 'this'. The properties we defined in the global Execution Context are stored in the global Variable Environment. Then in the Execution Phase of the Execution Context, myVar is assigned the value of 1. So now in memory for the global Execution Context, myVar has a value of 1. This is stored in the global Variable Environment.
+
+Then during execution, the a function is invoked. A new Execution Context is created and put on the Execution Stack. It goes through the Creation and Execution Phase of the Execution Context. The myVar variable declared here is placed in a new area in memory separate from the other Execution Context. A Lexical Environment is created mapping the identifier to its variable. It in effect creates a Variable Environment for any variables defined in this Execution Context. This Variable Environment is distinct from any other Variable Environment. The Execution Phase occurs and myVar is assigned a value of 2. Now in this Variable Enviroment, myVar has a value of 2, whereas in the global ExecutionContext, myVar has a value of 1. Note that if we were to refer to a variable in this new Execution Context that does not exist in the current Execution Context, then the Lexical Environment will search its parent Lexical Environment for the variable, aka the Outer Environment. Since JavaScript is single-threaded, once myVar is assigned a value of 2, it moves on to the next statement, which is the invocation of b, and a new Execution Context is created for b and the same process occurs again.
+
+function b(){
+  var myVar;
+  console.log(myVar);
+}
+
+function a(){
+  var myVar = 2;
+  console.log(myVar);
+  b();
+}
+
+var myVar = 1;
+console.log(myVar);
+a();
+console.log(myVar);
+
+> 1
+> 2
+> undefined
+> 1
+Again, it's important to emphasize that each of the myVars live in their own Variable Enviroment respective to their own Execution Context. Hence, when we console.log(myVar) after calling the a function, myVar in the global Execution Context is still the value of 1. In fact, when we do the second console.log(myVar), both the a and b function's Execution Context will already be popped.
+
+It's also very important to note here that since these functions are invoked without the new keyword, this refers to the object in the global Execution Context. This can be proven easily:
+
+var a = 1;
+
+function b(){
+    var a = 2;
+    console.log(this.a);
+}
+
+b()
+> 1
+Above, this.a refers to the a defined in the global Execution Context, since this is refering to the global object, which in browsers is the Window object.
+
+Now that we discussed the Variable Environment, let's discuss the Outer Enviroment of the Lexical Environment. This leads us to the Scope Chain. First, we must ask what is an Outer Environment of an Execution Context? In the below example, in the case of the function b, its Outer Environment is the Global Execution Context. This is also the case of the function a. This is true for function b, even though function a is directly below function b in the Execution Stack. The Outer Environment invokes the concept of the Lexical Environment. The Lexical Environment highlights the idea that where something is written physically in your code is important. It determines how identifier/variable mappings live in your code and how they will connect to each other. So we must ask ourselves, where does function b sit lexically? It lexically sits on top of the global Outer Environment. The function b is not sitting inside of function a; instead, it is sitting at the same level as the global Outer Environment. When you ask for a variable while running a line of code within any particular Execution Context, if the Engine cannot find the variable within the Variable Environment of the current Execution Context, it will look for the variables in the Outer Environment of the current Execution Context. Now even if there are 10 Execution Contexts' stacked on each other, if the 10th Execution Context is sitting lexically on the global Outer Environment, when it searches for its Outer Environment in each of the other 9 Execution Contexts', it will search all the way to the global Execution Context, since the code sits lexically on the Outer Environment. This process of searching for a given Execution Context's Outer Environment is known as the Scope Chain in JavaScript. Remember scope asks 'where can I access a variable?'. And the Scope Chain is those links of Outer Environment references.
+
+function b(){
+  console.log(myVar);
+}
+
+function a(){
+  var myVar = 2;
+  b();
+}
+
+var myVar = 1;
+a();
+> 1
+You might have thought that myVar in b would be 2, since the b function would look into its parent Execution Context, which is a (which is the Execution Context directly below b's Execution Context in the Execution Stack). But that is not how the Outer Environment of the Lexical Environment works. Because the Outer Environment of b is the global Execution Context, myVar in b will be the value 1.
+
+Now it's possible to change the Lexical Environment of a function. We can change the lexical environment of the function b by placing it physically inside of function a. Since we changed its physical location, the Outer Environment of the Lexical Environment of the function b changes.
+
