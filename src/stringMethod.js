@@ -1,0 +1,22 @@
+var str = 'Martin Luther King'
+var str1 = 'Javascript Developer and Node Js Developer'
+
+console.log(str.charAt(1))
+console.log(str.charCodeAt(1))
+console.log(str.concat(' '+str1))
+console.log(str.endsWith('g'))
+console.log(str.includes('L'))
+console.log(str.indexOf('r'))
+console.log(str1.lastIndexOf('e'))
+console.log(str1.match(/Dev/g))
+console.log(str.repeat(2))
+console.log(str1.replace(/Dev/g, 'dev'))
+console.log(str1.search('Dev'))
+console.log(str.slice(7, 13))
+console.log(str1.split(' '))
+console.log(str1.startsWith('Jav'))
+console.log(str.substr(7, 6))
+console.log(str.substring(7, 13))
+console.log(str1.toLowerCase())
+console.log(str1.toUpperCase())
+console.log(str1.trim())
